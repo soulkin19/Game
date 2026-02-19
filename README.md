@@ -50,24 +50,29 @@
         window.addEventListener('touchstart', handleInput, { passive: false });
         window.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
 
-        function spawnObstacle() {
+        function spawnObstacle(x, y, vx, vy, color = '#ff0055', splitCount = 0) {
+            // PHASE 4用の分裂回数(splitCount)を保持
+            obstacles.push({ x, y, vx, vy, color, splitCount });
+        }
+
+        function createEnemy() {
             const side = Math.floor(Math.random() * 4);
             let x, y, vx, vy;
             
-            // 速度の調整
             let baseSpeed;
-            if (phase === 1) baseSpeed = 2; 
-            else if (phase === 2) baseSpeed = 3.5;
-            else baseSpeed = 3;                   
+            if (phase === 1) baseSpeed = 1.5; // さらに簡単に
+            else if (phase === 2) baseSpeed = 2.5; // マイルドに
+            else if (phase === 3) baseSpeed = 3.5; // 標準的に
+            else baseSpeed = 4.0; 
 
-            let speed = (baseSpeed + Math.random() * 2) + (phase * 1.0);
+            let speed = (baseSpeed + Math.random() * 1.5) + (phase * 0.5);
 
             if (side === 0) { x = -20; y = Math.random() * 600; vx = speed; vy = 0; }
             else if (side === 1) { x = 620; y = Math.random() * 600; vx = -speed; vy = 0; }
             else if (side === 2) { x = Math.random() * 600; y = -20; vx = 0; vy = speed; }
             else { x = Math.random() * 600; y = 620; vx = 0; vy = -speed; }
 
-            obstacles.push({ x, y, vx, vy, color: '#ff0055' });
+            spawnObstacle(x, y, vx, vy);
         }
 
         function update() {
@@ -75,22 +80,42 @@
 
             if (score > 25 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (normal)"; }
             if (score > 50 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (hard)"; }
-            if (score > 100 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (super difficult)"; }
+            if (score > 100 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (SPLIT HELL)"; }
 
             angle += rotationDir;
             const px = centerX + Math.cos(angle) * orbitRadius;
             const py = centerY + Math.sin(angle) * orbitRadius;
 
-            // 出現頻度
             let spawnRate;
-            if (phase === 1) spawnRate = 0.05;
-            else spawnRate = 0.04 + (phase * 0.02);
+            if (phase === 1) spawnRate = 0.03;
+            else if (phase === 2) spawnRate = 0.04;
+            else spawnRate = 0.04 + (phase * 0.015);
 
-            if (Math.random() < spawnRate) spawnObstacle();
+            if (Math.random() < spawnRate) createEnemy();
 
-            obstacles.forEach((ob, i) => {
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let ob = obstacles[i];
                 ob.x += ob.vx;
                 ob.y += ob.vy;
+
+                // PHASE 4 特有の分裂ロジック (2回まで分裂)
+                if (phase >= 4 && ob.splitCount < 2) {
+                    const distToCenter = Math.hypot(ob.x - centerX, ob.y - centerY);
+                    // 1回目：中央付近で分裂、2回目：軌道の少し外側で分裂
+                    const triggerDist = ob.splitCount === 0 ? 250 : 130;
+                    
+                    if (distToCenter < triggerDist) {
+                        const s = Math.hypot(ob.vx, ob.vy);
+                        // 4方向に拡散
+                        spawnObstacle(ob.x, ob.y, s, 0, '#ffcc00', ob.splitCount + 1);
+                        spawnObstacle(ob.x, ob.y, -s, 0, '#ffcc00', ob.splitCount + 1);
+                        spawnObstacle(ob.x, ob.y, 0, s, '#ffcc00', ob.splitCount + 1);
+                        spawnObstacle(ob.x, ob.y, 0, -s, '#ffcc00', ob.splitCount + 1);
+                        
+                        obstacles.splice(i, 1);
+                        continue;
+                    }
+                }
 
                 const dist = Math.hypot(px - ob.x, py - ob.y);
                 if (dist < 22) {
@@ -102,13 +127,13 @@
                     }, 100);
                 }
 
-                if (ob.x < -100 || ob.x > 700 || ob.y < -100 || ob.y > 700) {
+                if (ob.x < -150 || ob.x > 750 || ob.y < -150 || ob.y > 750) {
                     obstacles.splice(i, 1);
                     score++;
                     scoreEl.innerText = score;
                     if (score % 10 === 0) shakeTime = 5;
                 }
-            });
+            }
 
             let sx = 0, sy = 0;
             if (shakeTime > 0) {
