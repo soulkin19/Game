@@ -93,8 +93,8 @@
 
             // スコアによる進化
             if (score > 30 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (BARRAGE)"; }
-            if (score > 80 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (GLITCH)"; }
-            if (score > 150 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (ABYSS)"; }
+            if (score > 50 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (GLITCH)"; }
+            if (score > 100 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (ABYSS)"; }
 
             angle += rotationDir;
             const px = centerX + Math.cos(angle) * orbitRadius;
