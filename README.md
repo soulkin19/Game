@@ -50,14 +50,17 @@
         window.addEventListener('touchstart', handleInput, { passive: false });
         window.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
 
-        // ★ 速度調整を加えたスポーン関数
         function spawnObstacle() {
             const side = Math.floor(Math.random() * 4);
             let x, y, vx, vy;
             
-            // --- 速度計算の修正 ---
-            let baseSpeed = phase === 1 ? 3 : 6; // フェーズ1は3、それ以外は6からスタート
-            let speed = (baseSpeed + Math.random() * 3) + (phase * 1.2);
+            // 速度の調整
+            let baseSpeed;
+            if (phase === 1) baseSpeed = 2;       // さらに遅く
+            else if (phase === 2) baseSpeed = 4.5; // 以前より若干遅め
+            else baseSpeed = 6;                    // PHASE 3以降は今と同じ
+
+            let speed = (baseSpeed + Math.random() * 2) + (phase * 1.0);
 
             if (side === 0) { x = -20; y = Math.random() * 600; vx = speed; vy = 0; }
             else if (side === 1) { x = 620; y = Math.random() * 600; vx = -speed; vy = 0; }
@@ -78,7 +81,11 @@
             const px = centerX + Math.cos(angle) * orbitRadius;
             const py = centerY + Math.sin(angle) * orbitRadius;
 
-            let spawnRate = 0.08 + (phase * 0.04);
+            // 出現頻度の調整（PHASE 1は少なく）
+            let spawnRate;
+            if (phase === 1) spawnRate = 0.05;
+            else spawnRate = 0.08 + (phase * 0.04);
+
             if (Math.random() < spawnRate) spawnObstacle();
 
             obstacles.forEach((ob, i) => {
