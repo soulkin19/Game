@@ -62,7 +62,6 @@
         const centerY = canvas.height / 2;
         const orbitRadius = 90;
 
-        // ダブルタップによるズームを防ぐための徹底したイベント抑制
         const handleInput = (e) => {
             if (e.cancelable) e.preventDefault();
             if (!gameActive) return;
@@ -71,7 +70,6 @@
 
         window.addEventListener('mousedown', handleInput, { passive: false });
         window.addEventListener('touchstart', handleInput, { passive: false });
-        // ダブルクリックイベントも無効化
         window.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
 
         function spawnObstacle() {
@@ -91,7 +89,7 @@
             if (!gameActive) return;
 
             // スコアによる進化
-            if (score > 30 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (BARRAGE)"; }
+            if (score > 25 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (BARRAGE)"; }
             if (score > 50 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (GLITCH)"; }
             if (score > 100 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (ABYSS)"; }
 
