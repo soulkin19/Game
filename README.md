@@ -57,8 +57,8 @@
             // 速度の調整
             let baseSpeed;
             if (phase === 1) baseSpeed = 2;       // さらに遅く
-            else if (phase === 2) baseSpeed = 4.5; // 以前より若干遅め
-            else baseSpeed = 6;                    // PHASE 3以降は今と同じ
+            else if (phase === 2) baseSpeed = 3; // 以前より若干遅め
+            else baseSpeed = 3.5;                    // PHASE 3以降は今と同じ
 
             let speed = (baseSpeed + Math.random() * 2) + (phase * 1.0);
 
