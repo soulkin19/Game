@@ -36,7 +36,7 @@
 </head>
 <body>
     <div id="ui">
-        <div id="phase" class="phase">PHASE: 1 (NORMAL)</div>
+        <div id="phase" class="phase">PHASE: 1 (easy)</div>
         <div id="score" class="score">0</div>
     </div>
     <canvas id="game"></canvas>
@@ -89,9 +89,9 @@
             if (!gameActive) return;
 
             // スコアによる進化
-            if (score > 25 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (BARRAGE)"; }
-            if (score > 50 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (GLITCH)"; }
-            if (score > 100 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (ABYSS)"; }
+            if (score > 25 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (normal)"; }
+            if (score > 50 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (hard)"; }
+            if (score > 100 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (super difficult)"; }
 
             angle += rotationDir;
             const px = centerX + Math.cos(angle) * orbitRadius;
