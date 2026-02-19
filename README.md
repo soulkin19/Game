@@ -5,30 +5,8 @@
     <title>HEXAGON HELL -CHAOS-</title>
     <style>
         * { touch-action: none; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            margin: 0; 
-            background: #000; 
-            color: #fff; 
-            font-family: 'Courier New', monospace; 
-            overflow: hidden; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh;
-            /* 画面の揺れが外に漏れないように固定 */
-            position: fixed;
-            width: 100%;
-        }
-
-        canvas { 
-            background: #000; 
-            border: 4px solid #333; 
-            max-width: 95vw; 
-            max-height: 80vh; 
-            box-shadow: 0 0 50px rgba(255, 0, 85, 0.3);
-        }
-
+        body { margin: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; position: fixed; width: 100%; }
+        canvas { background: #000; border: 4px solid #333; max-width: 95vw; max-height: 80vh; box-shadow: 0 0 50px rgba(255, 0, 85, 0.3); }
         #ui { position: absolute; top: 5%; text-align: center; pointer-events: none; width: 100%; z-index: 10; }
         .score { font-size: 4rem; font-weight: bold; text-shadow: 0 0 20px #ff0055; margin: 0; }
         .phase { font-size: 1.2rem; color: #ff0055; font-weight: bold; text-transform: uppercase; }
@@ -72,10 +50,14 @@
         window.addEventListener('touchstart', handleInput, { passive: false });
         window.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
 
+        // ★ 速度調整を加えたスポーン関数
         function spawnObstacle() {
             const side = Math.floor(Math.random() * 4);
             let x, y, vx, vy;
-            let speed = (6 + Math.random() * 4) + (phase * 1.2);
+            
+            // --- 速度計算の修正 ---
+            let baseSpeed = phase === 1 ? 3 : 6; // フェーズ1は3、それ以外は6からスタート
+            let speed = (baseSpeed + Math.random() * 3) + (phase * 1.2);
 
             if (side === 0) { x = -20; y = Math.random() * 600; vx = speed; vy = 0; }
             else if (side === 1) { x = 620; y = Math.random() * 600; vx = -speed; vy = 0; }
@@ -88,7 +70,6 @@
         function update() {
             if (!gameActive) return;
 
-            // スコアによる進化
             if (score > 25 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (normal)"; }
             if (score > 50 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (hard)"; }
             if (score > 100 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (super difficult)"; }
@@ -128,13 +109,11 @@
                 sy = (Math.random() - 0.5) * shakeTime;
                 shakeTime--;
             }
-
             draw(px, py, sx, sy);
         }
 
         function draw(px, py, sx, sy) {
             ctx.setTransform(1, 0, 0, 1, sx, sy);
-            
             ctx.fillStyle = `rgba(0, 0, 0, ${0.3 - (phase * 0.05)})`;
             ctx.fillRect(-100, -100, canvas.width + 200, canvas.height + 200);
 
