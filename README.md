@@ -56,9 +56,9 @@
             
             // 速度の調整
             let baseSpeed;
-            if (phase === 1) baseSpeed = 2;       // さらに遅く
-            else if (phase === 2) baseSpeed = 3; // 以前より若干遅め
-            else baseSpeed = 3.5;                    // PHASE 3以降は今と同じ
+            if (phase === 1) baseSpeed = 2; 
+            else if (phase === 2) baseSpeed = 3.5;
+            else baseSpeed = 3;                   
 
             let speed = (baseSpeed + Math.random() * 2) + (phase * 1.0);
 
@@ -81,10 +81,10 @@
             const px = centerX + Math.cos(angle) * orbitRadius;
             const py = centerY + Math.sin(angle) * orbitRadius;
 
-            // 出現頻度の調整（PHASE 1は少なく）
+            // 出現頻度
             let spawnRate;
             if (phase === 1) spawnRate = 0.05;
-            else spawnRate = 0.03 + 0.02);
+            else spawnRate = 0.04 + (phase * 0.02);
 
             if (Math.random() < spawnRate) spawnObstacle();
 
