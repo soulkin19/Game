@@ -109,7 +109,7 @@
                     shakeTime = 30;
                     gameActive = false;
                     setTimeout(() => {
-                        alert(`SHATTERED!\nFINAL SCORE: ${score}`);
+                        alert(Broken!\nFINAL SCORE: ${score}`);
                         location.reload();
                     }, 100);
                 }
