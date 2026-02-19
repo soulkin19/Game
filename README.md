@@ -84,7 +84,7 @@
             // 出現頻度の調整（PHASE 1は少なく）
             let spawnRate;
             if (phase === 1) spawnRate = 0.05;
-            else spawnRate = 0.06 + (phase * 0.03);
+            else spawnRate = 0.03 + (phase * 0.03);
 
             if (Math.random() < spawnRate) spawnObstacle();
 
