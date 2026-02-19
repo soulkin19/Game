@@ -78,9 +78,9 @@
         function update() {
             if (!gameActive) return;
 
-            if (score > 15 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (normal)"; }
-            if (score > 30 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (hard)"; }
-            if (score > 50 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (SPLIT HELL)"; }
+            if (score > 10 && phase === 1) { phase = 2; phaseEl.innerText = "PHASE: 2 (normal)"; }
+            if (score > 20 && phase === 2) { phase = 3; phaseEl.innerText = "PHASE: 3 (hard)"; }
+            if (score > 30 && phase === 3) { phase = 4; phaseEl.innerText = "PHASE: 4 (SPLIT HELL)"; }
 
             angle += rotationDir;
             const px = centerX + Math.cos(angle) * orbitRadius;
