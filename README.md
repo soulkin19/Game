@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HEXAGON HELL -CHAOS-</title>
     <style>
-        /* touch-action: none でブラウザのズームやスクロールを無効化 */
         * { touch-action: none; -webkit-tap-highlight-color: transparent; }
         
         body { 
