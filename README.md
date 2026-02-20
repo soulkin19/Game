@@ -13,6 +13,7 @@
         #ui { position: absolute; top: 20px; text-align: center; pointer-events: none; width: 100%; z-index: 10; }
         .score-display { font-size: 4rem; font-weight: bold; text-shadow: 0 0 20px #ff0055; margin: 0; }
         .phase-display { font-size: 1.2rem; color: #ff0055; font-weight: bold; text-transform: uppercase; }
+        #debug-indicator { color: #0f0; font-size: 0.8rem; display: none; }
 
         /* リザルト画面 */
         #result-screen { 
@@ -27,7 +28,6 @@
         .stat-line { font-size: 1.2rem; margin: 5px 0; }
         .best-score { color: #ffcc00; font-weight: bold; }
 
-        /*saiensキン*/
         .color-settings { margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .color-settings label { font-size: 0.8rem; color: #aaa; letter-spacing: 1px; }
         input[type="color"] { background: none; border: 2px solid #fff; cursor: pointer; width: 50px; height: 50px; border-radius: 50%; padding: 0; overflow: hidden; }
@@ -42,6 +42,7 @@
     <div id="game-container">
         <div id="ui">
             <div id="phase-ui" class="phase-display">PHASE: 1 (easy)</div>
+            <div id="debug-indicator">DEBUG MODE (PHASE 4)</div>
             <div id="score-ui" class="score-display">0</div>
         </div>
 
@@ -73,6 +74,7 @@
         const ctx = canvas.getContext('2d');
         const scoreUI = document.getElementById('score-ui');
         const phaseUI = document.getElementById('phase-ui');
+        const debugUI = document.getElementById('debug-indicator');
         const resultScreen = document.getElementById('result-screen');
         const currentScoreEl = document.getElementById('current-score');
         const bestScoreEl = document.getElementById('best-score');
@@ -85,11 +87,27 @@
         let bestScore = localStorage.getItem('hexagon_best_v2') || 0;
         const centerX = 300, centerY = 300, orbitRadius = 90;
 
+        // URLハッシュのチェック
+        const isDevMode = () => window.location.hash === '#dev';
+
         function initGame() {
-            score = 0; phase = 1; obstacles = []; gameActive = true; rotationDir = 0.08; p4Timer = 0;
+            score = 0; obstacles = []; gameActive = true; rotationDir = 0.08; frameCount = 0;
             resultScreen.style.display = 'none';
-            scoreUI.innerText = "0"; phaseUI.innerText = "PHASE: 1 (easy)";
-            phaseUI.style.color = "#ff0055";
+            scoreUI.innerText = "0";
+
+            if (isDevMode()) {
+                phase = 4;
+                p4Timer = 0; // デバッグモードは待機なしで開始
+                phaseUI.innerText = "PHASE: 4 (GLITCH ABYSS)";
+                phaseUI.style.color = "#0ff";
+                debugUI.style.display = "block";
+            } else {
+                phase = 1;
+                p4Timer = 0;
+                phaseUI.innerText = "PHASE: 1 (easy)";
+                phaseUI.style.color = "#ff0055";
+                debugUI.style.display = "none";
+            }
         }
 
         canvas.addEventListener('pointerdown', (e) => {
@@ -120,14 +138,17 @@
             if (!gameActive) { requestAnimationFrame(update); return; }
             frameCount++;
 
-            if (score > 10 && phase === 1) { phase = 2; phaseUI.innerText = "PHASE: 2 (normal)"; }
-            if (score > 20 && phase === 2) { phase = 3; phaseUI.innerText = "PHASE: 3 (hard)"; }
-            if (score > 35 && phase === 3) { 
-                phase = 4; 
-                obstacles = []; 
-                p4Timer = 180; 
-                phaseUI.innerText = "PHASE: 4 (WARNING)"; 
-                phaseUI.style.color = "#0ff";
+            // 通常モードのフェーズ進行
+            if (!isDevMode()) {
+                if (score > 10 && phase === 1) { phase = 2; phaseUI.innerText = "PHASE: 2 (normal)"; }
+                if (score > 20 && phase === 2) { phase = 3; phaseUI.innerText = "PHASE: 3 (hard)"; }
+                if (score > 35 && phase === 3) { 
+                    phase = 4; 
+                    obstacles = []; 
+                    p4Timer = 180; 
+                    phaseUI.innerText = "PHASE: 4 (WARNING)"; 
+                    phaseUI.style.color = "#0ff";
+                }
             }
 
             if (p4Timer > 0) {
@@ -207,6 +228,11 @@
             ctx.beginPath(); ctx.arc(px, py, 12, 0, Math.PI*2); ctx.fill();
             ctx.shadowBlur = 0;
         }
+
+        // 初期実行
+        initGame();
+        window.addEventListener('hashchange', initGame);
+        
         requestAnimationFrame(update);
     </script>
 </body>
