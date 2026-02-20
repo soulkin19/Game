@@ -61,7 +61,7 @@
 
                 <div class="btn-container">
                     <button class="game-btn retry-btn" id="retry-trigger">RETRY</button>
-                    <button class="game-btn share-btn" id="share-trigger">SHARE ON X</button>
+                    <button class="game-btn share-btn" id="share-trigger">Twitterでシェア</button>
                 </div>
             </div>
         </div>
@@ -99,7 +99,7 @@
 
         document.getElementById('retry-trigger').onclick = () => initGame();
         document.getElementById('share-trigger').onclick = () => {
-            const text = `HEXAGON HELL\nSCORE: ${Math.floor(score)}`;
+            const text = `Rismer Chaosでのスコアは\nSCORE: ${Math.floor(score)}でした。みんなもhttps://soulkin19.github.io/Game/で遊ぼう！`;
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
         };
 
