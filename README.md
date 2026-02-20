@@ -7,33 +7,31 @@
         * { touch-action: none; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; position: fixed; }
         
-        /* ゲームエリアのコンテナ */
         #game-container { position: relative; width: 600px; height: 600px; max-width: 95vw; max-height: 80vh; }
-        canvas { background: #000; border: 4px solid #333; width: 100%; height: 100%; display: block; }
+        canvas { background: #000; border: 4px solid #333; width: 100%; height: 100%; display: block; box-shadow: 0 0 20px rgba(0,255,255,0.2); }
         
         #ui { position: absolute; top: 20px; text-align: center; pointer-events: none; width: 100%; z-index: 10; }
-        .score-display { font-size: 4rem; font-weight: bold; text-shadow: 0 0 20px #ff0055; margin: 0; }
-        .phase-display { font-size: 1.2rem; color: #ff0055; font-weight: bold; text-transform: uppercase; }
+        .score-display { font-size: 4rem; font-weight: bold; text-shadow: 0 0 20px #ff0055; margin: 0; transition: transform 0.1s; }
+        .phase-display { font-size: 1.2rem; color: #ff0055; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* ゲームオーバー画面 - pointer-events: auto を明示 */
         #result-screen { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0, 0, 0, 0.9); display: none; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 2000; pointer-events: auto;
+            background: rgba(0, 0, 0, 0.95); display: none; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 2000;
         }
-        .result-card { background: #111; padding: 30px; border: 2px solid #ff0055; border-radius: 10px; box-shadow: 0 0 30px #ff0055; text-align: center; width: 80%; }
-        .result-card h2 { font-size: 2rem; color: #ff0055; margin: 0 0 15px 0; }
-        .stats-text { font-size: 1.2rem; margin-bottom: 25px; line-height: 1.5; color: #fff; }
+        .result-card { background: #050505; padding: 40px; border: 2px solid #0ff; border-radius: 15px; box-shadow: 0 0 50px rgba(0, 255, 255, 0.3); text-align: center; width: 85%; }
+        .result-card h2 { font-size: 2.5rem; color: #0ff; margin: 0 0 10px 0; text-shadow: 0 0 10px #0ff; }
+        .stats-text { font-size: 1.4rem; margin-bottom: 30px; line-height: 1.8; color: #fff; }
         
-        .btn-container { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .btn-container { display: flex; flex-direction: column; gap: 15px; width: 100%; }
         .game-btn { 
-            padding: 15px; font-size: 1.1rem; font-weight: bold; border: none; 
-            cursor: pointer; border-radius: 5px; font-family: inherit; transition: 0.2s;
-            width: 100%; pointer-events: auto; /* ボタンを確実にクリック可能に */
+            padding: 18px; font-size: 1.2rem; font-weight: bold; border: none; 
+            cursor: pointer; border-radius: 8px; font-family: inherit; transition: 0.3s;
+            width: 100%; text-transform: uppercase;
         }
-        .retry-btn { background: #fff; color: #000; }
-        .share-btn { background: #000; color: #fff; border: 1px solid #fff; }
-        .game-btn:active { transform: scale(0.95); filter: brightness(0.8); }
+        .retry-btn { background: #fff; color: #000; box-shadow: 0 4px 0 #bbb; }
+        .share-btn { background: #000; color: #fff; border: 2px solid #fff; }
+        .game-btn:active { transform: translateY(4px); box-shadow: none; }
     </style>
 </head>
 <body>
@@ -45,11 +43,11 @@
 
         <div id="result-screen">
             <div class="result-card">
-                <h2>GAME OVER</h2>
+                <h2>BROKEN</h2>
                 <div id="final-stats" class="stats-text"></div>
                 <div class="btn-container">
-                    <button class="game-btn retry-btn" id="retry-trigger">RETRY</button>
-                    <button class="game-btn share-btn" id="share-trigger">SHARE ON X</button>
+                    <button class="game-btn retry-btn" id="retry-trigger">Try Again</button>
+                    <button class="game-btn share-btn" id="share-trigger">Share Result</button>
                 </div>
             </div>
         </div>
@@ -70,36 +68,33 @@
         canvas.width = 600;
         canvas.height = 600;
 
-        let score = 0, gameActive = true, angle = 0, rotationDir = 0.08, obstacles = [], shakeTime = 0, phase = 1;
+        let score = 0, gameActive = true, angle = 0, rotationDir = 0.08, obstacles = [], shakeTime = 0, phase = 1, frameCount = 0;
         let bestScore = localStorage.getItem('hexagon_best_v2') || 0;
         const centerX = 300, centerY = 300, orbitRadius = 90;
 
         function initGame() {
             score = 0; phase = 1; obstacles = []; gameActive = true; rotationDir = 0.08;
             resultScreen.style.display = 'none';
-            scoreUI.innerText = "0"; phaseUI.innerText = "PHASE: 1 (easy)";
+            scoreUI.innerText = "0";
+            phaseUI.innerText = "PHASE: 1 (easy)";
+            phaseUI.style.color = "#ff0055";
         }
 
-        // 入力処理：Canvasのみに限定することでボタンへの干渉を防ぐ
         const handleInput = (e) => {
             if (e.cancelable) e.preventDefault();
-            if (gameActive) rotationDir *= -1;
+            if (gameActive) {
+                rotationDir *= -1;
+                // 操作フィードバック
+                scoreUI.style.transform = "scale(1.1)";
+                setTimeout(() => scoreUI.style.transform = "scale(1)", 100);
+            }
         };
-        canvas.addEventListener('mousedown', handleInput);
-        canvas.addEventListener('touchstart', handleInput, { passive: false });
+        canvas.addEventListener('pointerdown', handleInput);
 
-        // リトライボタン
-        retryBtn.onclick = (e) => {
-            e.stopPropagation();
-            initGame();
-        };
-
-        // シェアボタン
-        shareBtn.onclick = (e) => {
-            e.stopPropagation();
-            const text = `HEXAGON HELLをクリア！\nScore: ${Math.floor(score)}\nBest: ${bestScore}\n#HEXAGON_HELL`;
-            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-            window.open(url, '_blank');
+        retryBtn.onclick = () => initGame();
+        shareBtn.onclick = () => {
+            const text = `HEXAGON HELL\nScore: ${Math.floor(score)}\nPHASE: ${phase}\n#HEXAGON_HELL`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
         };
 
         function createEnemy() {
@@ -130,9 +125,15 @@
                 requestAnimationFrame(update);
                 return;
             }
+            frameCount++;
+
             if (score > 10 && phase === 1) { phase = 2; phaseUI.innerText = "PHASE: 2 (normal)"; }
             if (score > 20 && phase === 2) { phase = 3; phaseUI.innerText = "PHASE: 3 (hard)"; }
-            if (score > 25 && phase === 3) { phase = 4; phaseUI.innerText = "PHASE: 4 (GLITCH ABYSS)"; }
+            if (score > 25 && phase === 3) { 
+                phase = 4; 
+                phaseUI.innerText = "PHASE: 4 (GLITCH RAVE)"; 
+                phaseUI.style.color = "#0ff";
+            }
 
             angle += rotationDir;
             const px = centerX + Math.cos(angle) * orbitRadius;
@@ -144,16 +145,29 @@
                 let ob = obstacles[i];
                 ob.x += ob.vx; ob.y += ob.vy;
                 const dist = Math.hypot(px - ob.x, py - ob.y);
-                if (dist < 40 && dist > 22) { score += 0.05; scoreUI.innerText = Math.floor(score); }
+                
+                // かすりボーナス（PHASE 4では3倍）
+                if (dist < 40 && dist > 22) { 
+                    score += (phase >= 4 ? 0.15 : 0.05); 
+                    scoreUI.innerText = Math.floor(score);
+                }
+
                 if (phase >= 4 && ob.split < 2) {
                     const distToC = Math.hypot(ob.x - centerX, ob.y - centerY);
                     if (distToC < (ob.split === 0 ? 250 : 130)) {
                         const s = Math.hypot(ob.vx, ob.vy) * 1.1;
-                        const col = `hsl(${Math.random()*360}, 100%, 60%)`;
-                        obstacles.push({x:ob.x, y:ob.y, vx:s, vy:0, color:col, split:ob.split+1}, {x:ob.x, y:ob.y, vx:-s, vy:0, color:col, split:ob.split+1}, {x:ob.x, y:ob.y, vx:0, vy:s, color:col, split:ob.split+1}, {x:ob.x, y:ob.y, vx:0, vy:-s, color:col, split:ob.split+1});
+                        // PHASE 4 の分裂はカラフルに
+                        const col = `hsl(${(frameCount * 5) % 360}, 100%, 60%)`;
+                        obstacles.push(
+                            {x:ob.x, y:ob.y, vx:s, vy:0, color:col, split:ob.split+1},
+                            {x:ob.x, y:ob.y, vx:-s, vy:0, color:col, split:ob.split+1},
+                            {x:ob.x, y:ob.y, vx:0, vy:s, color:col, split:ob.split+1},
+                            {x:ob.x, y:ob.y, vx:0, vy:-s, color:col, split:ob.split+1}
+                        );
                         obstacles.splice(i, 1); continue;
                     }
                 }
+
                 if (dist < 22) { shakeTime = 30; gameOver(); }
                 if (ob.x < -150 || ob.x > 750 || ob.y < -150 || ob.y > 750) {
                     obstacles.splice(i, 1); score += 1; scoreUI.innerText = Math.floor(score);
@@ -166,18 +180,36 @@
 
         function draw(px, py) {
             let sx = (Math.random() - 0.5) * shakeTime, sy = (Math.random() - 0.5) * shakeTime;
-            ctx.setTransform(1, 0, 0, 1, sx, sy);
-            ctx.fillStyle = `rgba(0,0,0,${0.25 - (phase * 0.04) + (phase >= 4 && Math.random() < 0.05 ? 0.5 : 0)})`;
-            ctx.fillRect(-100, -100, 800, 800);
-            ctx.strokeStyle = phase >= 4 ? '#0ff' : '#333';
+            
+            // PHASE 4 のズーム演出（脈動）
+            let zoom = 1;
+            if (phase >= 4) zoom = 1 + Math.sin(frameCount * 0.2) * 0.01;
+            
+            ctx.setTransform(zoom, 0, 0, zoom, sx + (1-zoom)*centerX, sy + (1-zoom)*centerY);
+            
+            // 背景（PHASE 4はより残像を強く）
+            let bgAlpha = 0.25 - (phase * 0.04);
+            if (phase >= 4 && Math.random() < 0.05) bgAlpha = 0.6; 
+            ctx.fillStyle = `rgba(0,0,0,${bgAlpha})`;
+            ctx.fillRect(-200, -200, 1000, 1000);
+
+            // 軌道
+            ctx.strokeStyle = phase >= 4 ? `hsl(${frameCount % 360}, 100%, 50%)` : '#333';
             ctx.setLineDash([5, 5]);
             ctx.beginPath(); ctx.arc(centerX, centerY, orbitRadius, 0, Math.PI*2); ctx.stroke();
+
+            // 敵
             obstacles.forEach(ob => {
                 ctx.fillStyle = ob.color;
-                if(phase >= 2) { ctx.shadowBlur = 15; ctx.shadowColor = ob.color; }
+                if(phase >= 2) { 
+                    ctx.shadowBlur = phase >= 4 ? 20 : 15; 
+                    ctx.shadowColor = ob.color; 
+                }
                 ctx.fillRect(ob.x - 12, ob.y - 12, 24, 24);
                 ctx.shadowBlur = 0;
             });
+
+            // 自機
             ctx.fillStyle = '#fff'; ctx.shadowBlur = 20; ctx.shadowColor = '#0ff';
             ctx.beginPath(); ctx.arc(px, py, 12, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
         }
