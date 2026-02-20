@@ -27,7 +27,7 @@
         .stat-line { font-size: 1.2rem; margin: 5px 0; }
         .best-score { color: #ffcc00; font-weight: bold; }
 
-        /* カラー設定エリア */
+        /*saiensキン*/
         .color-settings { margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .color-settings label { font-size: 0.8rem; color: #aaa; letter-spacing: 1px; }
         input[type="color"] { background: none; border: 2px solid #fff; cursor: pointer; width: 50px; height: 50px; border-radius: 50%; padding: 0; overflow: hidden; }
@@ -122,7 +122,7 @@
 
             if (score > 10 && phase === 1) { phase = 2; phaseUI.innerText = "PHASE: 2 (normal)"; }
             if (score > 20 && phase === 2) { phase = 3; phaseUI.innerText = "PHASE: 3 (hard)"; }
-            if (score > 50 && phase === 3) { 
+            if (score > 35 && phase === 3) { 
                 phase = 4; 
                 obstacles = []; 
                 p4Timer = 180; 
