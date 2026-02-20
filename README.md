@@ -88,7 +88,7 @@
         const centerX = 300, centerY = 300, orbitRadius = 90;
 
         // URLハッシュのチェック
-        const isDevMode = () => window.location.hash === '#dev';
+        const isDevMode = () => window.location.hash === '#hisansuki';
 
         function initGame() {
             score = 0; obstacles = []; gameActive = true; rotationDir = 0.08; frameCount = 0;
