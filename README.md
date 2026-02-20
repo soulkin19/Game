@@ -141,8 +141,8 @@
             // 通常モードのフェーズ進行
             if (!isDevMode()) {
                 if (score > 10 && phase === 1) { phase = 2; phaseUI.innerText = "PHASE: 2 (normal)"; }
-                if (score > 20 && phase === 2) { phase = 3; phaseUI.innerText = "PHASE: 3 (hard)"; }
-                if (score > 35 && phase === 3) { 
+                if (score > 30 && phase === 2) { phase = 3; phaseUI.innerText = "PHASE: 3 (hard)"; }
+                if (score > 75 && phase === 3) { 
                     phase = 4; 
                     obstacles = []; 
                     p4Timer = 180; 
