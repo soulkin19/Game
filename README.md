@@ -47,7 +47,7 @@
 
         <div id="result-screen">
             <div class="result-card">
-                <h2>BROKEN</h2>
+                <h2>You were BROKEN</h2>
                 
                 <div class="stats-area">
                     <div class="stat-line">SCORE: <span id="current-score">0</span></div>
@@ -122,7 +122,7 @@
 
             if (score > 10 && phase === 1) { phase = 2; phaseUI.innerText = "PHASE: 2 (normal)"; }
             if (score > 20 && phase === 2) { phase = 3; phaseUI.innerText = "PHASE: 3 (hard)"; }
-            if (score > 25 && phase === 3) { 
+            if (score > 50 && phase === 3) { 
                 phase = 4; 
                 obstacles = []; 
                 p4Timer = 180; 
