@@ -1,4 +1,3 @@
-
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -106,7 +105,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // あなたの提供したAPI情報を適用
         const firebaseConfig = {
             apiKey: "AIzaSyCwhHspaG94goiCIjVj3h-Un5pBK3JTjMU",
             authDomain: "soulkin-aa3b7.firebaseapp.com",
@@ -121,7 +119,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- Game Setup ---
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         const scoreUI = document.getElementById('score-ui');
@@ -133,7 +130,14 @@
         let gameState = 'START'; 
         const centerX = 300, centerY = 300, orbitRadius = 90;
 
-        // --- UI Logic ---
+        if (window.location.hash === '#hisanauki') {
+            score = 100;
+            phase = 4;
+            scoreUI.innerText = score;
+            phaseUI.innerText = "PHASE: 4 (HELL)";
+            phaseUI.style.color = "#ff00ff";
+        }
+
         document.getElementById('start-btn').onclick = () => {
             document.getElementById('start-screen').style.display = 'none';
             pauseBtn.style.display = 'block';
@@ -156,7 +160,6 @@
             if (gameState === 'PLAYING') rotationDir *= -1;
         });
 
-        // --- Ranking Logic ---
         async function fetchRankings() {
             const box = document.getElementById('rank-list-box');
             try {
@@ -196,7 +199,6 @@
             }
         };
 
-        // --- Core Game Functions ---
         function createEnemy() {
             const side = Math.floor(Math.random() * 4);
             let x, y, vx, vy;
@@ -213,6 +215,7 @@
                 angle += rotationDir;
                 if (score > 20 && phase === 1) { phase = 2; phaseUI.innerText = "PHASE: 2 (normal)"; }
                 if (score > 50 && phase === 2) { phase = 3; phaseUI.innerText = "PHASE: 3 (hard)"; }
+                if (score > 100 && phase === 3) { phase = 4; phaseUI.innerText = "PHASE: 4 (HELL)"; phaseUI.style.color = "#ff00ff"; }
 
                 if (Math.random() < 0.03 + (phase * 0.01)) createEnemy();
 
@@ -266,3 +269,4 @@
         update();
     </script>
 </body>
+</html>
