@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HEXAGON HELL -CHAOS-</title>
     <style>
-        /* 基本は操作無効だが、overflow要素にはスクロールを許可する */
         * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; position: fixed; touch-action: none; }
         
