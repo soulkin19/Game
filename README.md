@@ -131,8 +131,8 @@
         const centerX = 300, centerY = 300, orbitRadius = 90;
 
         if (window.location.hash === '#hisansuki') {
-            score = 70;
-            phase = 3;
+            score = 100;
+            phase = 4;
             scoreUI.innerText = score;
             phaseUI.innerText = "PHASE: 4 (HELL)";
             phaseUI.style.color = "#ff00ff";
@@ -172,7 +172,7 @@
                 });
                 box.innerHTML = html || 'No scores yet!';
             } catch (e) {
-                box.innerHTML = '<div style="color:#ff0055; font-size:0.7rem;">Could not load rankings.<br>Check Firestore settings.</div>';
+                box.innerHTML = '<div style="color:#ff0055; font-size:0.7rem;">Could not load rankings.</div>';
                 console.error(e);
             }
         }
