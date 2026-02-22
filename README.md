@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HEXAGON HELL -CHAOS-</title>
     <style>
-        /* 基本設定（元に戻す） */
+
         * { touch-action: none; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; position: fixed; }
         
         #game-container { position: relative; width: 600px; height: 600px; max-width: 95vw; max-height: 85vh; }
         canvas { background: #000; border: 4px solid #333; width: 100%; height: 100%; display: block; }
         
-        /* ゲーム中UI（元に戻す） */
         #ui { position: absolute; top: 20px; text-align: center; pointer-events: none; width: 100%; z-index: 10; }
         .score-display { font-size: 4rem; font-weight: bold; text-shadow: 0 0 20px #ff0055; margin: 0; }
         .phase-display { font-size: 1.2rem; color: #ff0055; font-weight: bold; text-transform: uppercase; }
@@ -22,18 +21,15 @@
             padding: 5px 15px; cursor: pointer; display: none; font-family: inherit;
         }
 
-        /* --- オーバーレイUI（ここを強化） --- */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0, 0, 0, 0.9); display: flex; flex-direction: column; 
             align-items: center; justify-content: center; z-index: 2000; text-align: center;
         }
 
-        /* スタート画面特有 */
         #start-screen { background: radial-gradient(circle, #1a0008 0%, #000 100%); }
         .title-glow { font-size: 3.5rem; color: #ff0055; text-shadow: 0 0 30px #ff0055; margin: 0; font-weight: 900; letter-spacing: -2px; }
         
-        /* リザルト画面特有 */
         .result-card {
             background: rgba(20, 20, 20, 0.8);
             backdrop-filter: blur(10px);
@@ -45,7 +41,6 @@
             box-shadow: 0 0 40px rgba(0, 255, 255, 0.2);
         }
 
-        /* ボタンデザイン */
         .btn {
             padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border: none; cursor: pointer; 
             border-radius: 50px; font-family: inherit; transition: 0.3s; margin: 10px 0;
@@ -56,7 +51,6 @@
         .btn-retry { background: #fff; color: #000; width: 100%; }
         .btn-send { background: #0ff; color: #000; padding: 10px 20px; font-size: 0.9rem; border-radius: 5px; }
 
-        /* ランキング表示 */
         .ranking-container { background: rgba(0,0,0,0.5); border-radius: 10px; margin: 20px 0; padding: 10px; height: 150px; overflow-y: auto; }
         .rank-row { display: flex; justify-content: space-between; padding: 5px 10px; border-bottom: 1px solid #333; font-size: 0.9rem; }
         .rank-name { color: #0ff; text-align: left; flex: 1; }
