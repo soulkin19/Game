@@ -4,8 +4,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HEXAGON HELL -CHAOS-</title>
     <style>
-        * { touch-action: none; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; position: fixed; }
+        /* 基本は操作無効だが、overflow要素にはスクロールを許可する */
+        * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; position: fixed; touch-action: none; }
         
         #game-container { position: relative; width: 600px; height: 600px; max-width: 95vw; max-height: 85vh; }
         canvas { background: #000; border: 4px solid #333; width: 100%; height: 100%; display: block; }
@@ -18,6 +19,7 @@
             position: absolute; top: 10px; right: 10px; z-index: 100;
             background: rgba(255,255,255,0.1); color: white; border: 1px solid #fff;
             padding: 5px 15px; cursor: pointer; display: none; font-family: inherit;
+            touch-action: auto;
         }
 
         .overlay {
@@ -36,36 +38,37 @@
             padding: 20px;
             width: 92%;
             max-width: 440px;
-            height: 85%; /* 高さを固定してリストを際立たせる */
+            height: 80vh; /* 画面に収まるよう調整 */
             display: flex;
             flex-direction: column;
+            touch-action: auto; /* カード内は操作を許可 */
         }
 
-        /* スライド（スクロール）リストの核 */
+        /* スライド（スクロール）リストの修正版 */
         .ranking-scroll-area { 
-            flex: 1; /* カード内の余白を埋める */
+            flex: 1;
             background: #000; 
             border: 1px solid #333;
             border-radius: 8px; 
             margin: 10px 0; 
-            overflow-y: scroll; /* 常にスクロール可能に */
-            touch-action: pan-y !important; /* スライド操作を最優先 */
-            -webkit-overflow-scrolling: touch; /* iOSのヌルヌルスクロール */
+            overflow-y: auto !important; /* スクロールを強制 */
+            overflow-x: hidden;
+            touch-action: pan-y !important; /* 指での垂直スライドを許可 */
+            -webkit-overflow-scrolling: touch;
         }
         
         .ranking-scroll-area::-webkit-scrollbar { width: 8px; }
-        .ranking-scroll-area::-webkit-scrollbar-track { background: #111; }
         .ranking-scroll-area::-webkit-scrollbar-thumb { background: #0ff; border-radius: 4px; }
         
         .rank-list-item { 
             display: grid;
             grid-template-columns: 50px 1fr 80px;
             align-items: center;
-            padding: 12px 10px;
+            padding: 15px 10px; /* 少し広げてタップしやすく */
             border-bottom: 1px solid #222;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
-        .rank-list-item:nth-child(even) { background: #050505; }
+        .rank-list-item:nth-child(even) { background: #080808; }
         
         .r-num { color: #555; font-weight: bold; }
         .r-name { color: #0ff; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -74,14 +77,14 @@
         .btn {
             padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border: none; cursor: pointer; 
             border-radius: 50px; font-family: inherit; transition: 0.3s;
-            text-transform: uppercase;
+            text-transform: uppercase; touch-action: auto;
         }
         .btn-start { background: #ff0055; color: #fff; box-shadow: 0 5px 20px rgba(255, 0, 85, 0.4); }
         .btn-retry { background: #fff; color: #000; width: 100%; margin-top: 10px; }
-        .btn-send { background: #0ff; color: #000; padding: 10px 15px; font-size: 0.8rem; border-radius: 5px; font-weight: bold; border: none; }
+        .btn-send { background: #0ff; color: #000; padding: 10px 15px; font-size: 0.8rem; border-radius: 5px; font-weight: bold; }
 
-        .input-group { display: flex; gap: 5px; margin-bottom: 5px; }
-        input[type="text"] { background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; flex: 1; font-family: inherit; }
+        .input-group { display: flex; gap: 5px; margin-bottom: 5px; touch-action: auto; }
+        input[type="text"] { background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; flex: 1; font-family: inherit; touch-action: auto; }
     </style>
 </head>
 <body>
@@ -173,7 +176,8 @@
             document.getElementById('pause-screen').style.display = 'none';
         };
 
-        canvas.addEventListener('pointerdown', () => {
+        canvas.addEventListener('pointerdown', (e) => {
+            // オーバーレイが表示されているときは反応させない
             if (gameState === 'PLAYING') rotationDir *= -1;
         });
 
@@ -194,8 +198,7 @@
                         </div>`;
                     i++;
                 });
-                // 最後にスクロール用の余白を追加
-                html += '<div style="height:20px;"></div>';
+                html += '<div style="height:30px;"></div>'; // 余白
                 box.innerHTML = html || '<div style="padding:20px;">NO RECORDS</div>';
             } catch (e) {
                 box.innerHTML = '<div style="padding:20px; color:#ff0055;">LOAD ERROR</div>';
@@ -214,7 +217,7 @@
                     score: Math.floor(score),
                     createdAt: serverTimestamp()
                 });
-                document.getElementById('submission-ui').innerHTML = "<div style='color:#0ff; padding:10px;'>SUBMITTED</div>";
+                document.getElementById('submission-ui').innerHTML = "<div style='color:#0ff; padding:10px; font-weight:bold;'>SYNCED</div>";
                 fetchRankings();
             } catch (e) {
                 btn.disabled = false;
