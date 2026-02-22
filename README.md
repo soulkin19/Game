@@ -130,9 +130,9 @@
         let gameState = 'START'; 
         const centerX = 300, centerY = 300, orbitRadius = 90;
 
-        if (window.location.hash === '#hisanauki') {
-            score = 100;
-            phase = 4;
+        if (window.location.hash === '#hisansuki') {
+            score = 70;
+            phase = 3;
             scoreUI.innerText = score;
             phaseUI.innerText = "PHASE: 4 (HELL)";
             phaseUI.style.color = "#ff00ff";
