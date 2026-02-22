@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HEXAGON HELL -CHAOS-</title>
     <style>
-
         * { touch-action: none; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; position: fixed; }
         
@@ -12,8 +11,11 @@
         canvas { background: #000; border: 4px solid #333; width: 100%; height: 100%; display: block; }
         
         #ui { position: absolute; top: 20px; text-align: center; pointer-events: none; width: 100%; z-index: 10; }
-        .score-display { font-size: 4rem; font-weight: bold; text-shadow: 0 0 20px #ff0055; margin: 0; }
+        .score-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .score-display { font-size: 4.5rem; font-weight: bold; text-shadow: 0 0 20px #ff0055; margin: 0; line-height: 1; }
+        .rank-indicator { font-size: 1rem; color: #0ff; text-shadow: 0 0 10px #0ff; margin-top: 5px; font-weight: bold; }
         .phase-display { font-size: 1.2rem; color: #ff0055; font-weight: bold; text-transform: uppercase; }
+        
         #pause-btn { 
             position: absolute; top: 10px; right: 10px; z-index: 100;
             background: rgba(255,255,255,0.1); color: white; border: 1px solid #fff;
@@ -50,9 +52,24 @@
         .btn-retry { background: #fff; color: #000; width: 100%; }
         .btn-send { background: #0ff; color: #000; padding: 10px 20px; font-size: 0.9rem; border-radius: 5px; }
 
-        .ranking-container { background: rgba(0,0,0,0.5); border-radius: 10px; margin: 20px 0; padding: 10px; height: 150px; overflow-y: auto; }
-        .rank-row { display: flex; justify-content: space-between; padding: 5px 10px; border-bottom: 1px solid #333; font-size: 0.9rem; }
-        .rank-name { color: #0ff; text-align: left; flex: 1; }
+        /* スライド可能なランキング */
+        .ranking-container { 
+            background: rgba(0,0,0,0.6); 
+            border-radius: 10px; 
+            margin: 20px 0; 
+            padding: 5px; 
+            height: 180px; 
+            overflow-y: auto; 
+            scrollbar-width: thin;
+            scrollbar-color: #0ff #111;
+            touch-action: pan-y; /* スライド操作を許可 */
+        }
+        .ranking-container::-webkit-scrollbar { width: 6px; }
+        .ranking-container::-webkit-scrollbar-thumb { background: #0ff; border-radius: 10px; }
+        
+        .rank-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 0.95rem; }
+        .rank-name { color: #0ff; text-align: left; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px; }
+        .rank-num { color: #555; font-size: 0.8rem; margin-right: 10px; width: 25px; text-align: left; }
 
         .input-group { display: flex; gap: 10px; margin-top: 15px; }
         input[type="text"] { background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; flex: 1; font-family: inherit; }
@@ -64,7 +81,10 @@
         <button id="pause-btn">STOP</button>
         <div id="ui">
             <div id="phase-ui" class="phase-display">PHASE: 1 (easy)</div>
-            <div id="score-ui" class="score-display">0</div>
+            <div class="score-wrapper">
+                <div id="score-ui" class="score-display">0</div>
+                <div id="rank-ui" class="rank-indicator">RANK: --</div>
+            </div>
         </div>
 
         <div id="start-screen" class="overlay">
@@ -80,21 +100,21 @@
 
         <div id="result-screen" class="overlay" style="display:none;">
             <div class="result-card">
-                <h2 style="color:#ff0055; margin:0; font-size: 1.8rem;">GAME OVER</h2>
-                <div style="font-size: 3rem; font-weight: bold; margin: 10px 0;" id="final-score">0</div>
+                <h2 style="color:#ff0055; margin:0; font-size: 1.5rem;">GAME OVER</h2>
+                <div style="font-size: 3.5rem; font-weight: bold; margin: 5px 0; color: #fff;" id="final-score">0</div>
                 
                 <div class="ranking-container" id="rank-list-box">
-                    <div style="padding-top: 60px; color: #444;">Loading World Ranking...</div>
+                    <div style="padding-top: 60px; color: #444;">Fetching Rankings...</div>
                 </div>
 
                 <div id="submission-ui">
                     <div class="input-group">
-                        <input type="text" id="player-name" placeholder="Name" maxlength="10">
+                        <input type="text" id="player-name" placeholder="Enter Name" maxlength="10">
                         <button class="btn-send" id="submit-btn">SEND</button>
                     </div>
                 </div>
 
-                <button class="btn btn-retry" style="margin-top: 20px;" onclick="location.reload()">Try Again</button>
+                <button class="btn btn-retry" style="margin-top: 15px;" onclick="location.reload()">Retry Mission</button>
             </div>
         </div>
 
@@ -122,20 +142,32 @@
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         const scoreUI = document.getElementById('score-ui');
+        const rankUI = document.getElementById('rank-ui');
         const phaseUI = document.getElementById('phase-ui');
         const pauseBtn = document.getElementById('pause-btn');
         canvas.width = 600; canvas.height = 600;
 
         let score = 0, angle = 0, rotationDir = 0.08, obstacles = [], phase = 1;
         let gameState = 'START'; 
+        let globalHighScores = [];
         const centerX = 300, centerY = 300, orbitRadius = 90;
 
-        if (window.location.hash === '#hisansuki') {
-            score = 100;
-            phase = 4;
-            scoreUI.innerText = score;
-            phaseUI.innerText = "PHASE: 4 (HELL)";
-            phaseUI.style.color = "#ff00ff";
+        // 初回読み込み時にランキングを取得して順位計算の準備をする
+        async function preloadRankings() {
+            try {
+                const q = query(collection(db, "world_ranking"), orderBy("score", "desc"), limit(50));
+                const snap = await getDocs(q);
+                globalHighScores = [];
+                snap.forEach(doc => globalHighScores.push(doc.data().score));
+            } catch (e) { console.error(e); }
+        }
+        preloadRankings();
+
+        function updateLiveRank() {
+            if (globalHighScores.length === 0) return;
+            // 現在のスコアが上から何番目か計算
+            let currentRank = globalHighScores.filter(s => s > score).length + 1;
+            rankUI.innerText = `EST. RANK: ${currentRank}`;
         }
 
         document.getElementById('start-btn').onclick = () => {
@@ -163,17 +195,22 @@
         async function fetchRankings() {
             const box = document.getElementById('rank-list-box');
             try {
-                const q = query(collection(db, "world_ranking"), orderBy("score", "desc"), limit(10));
+                const q = query(collection(db, "world_ranking"), orderBy("score", "desc"), limit(30));
                 const snap = await getDocs(q);
                 let html = '';
+                let i = 1;
                 snap.forEach(doc => {
                     const d = doc.data();
-                    html += `<div class="rank-row"><span class="rank-name">${d.name}</span><strong>${Math.floor(d.score)}</strong></div>`;
+                    html += `<div class="rank-row">
+                                <span class="rank-num">#${i}</span>
+                                <span class="rank-name">${d.name}</span>
+                                <strong>${Math.floor(d.score)}</strong>
+                             </div>`;
+                    i++;
                 });
                 box.innerHTML = html || 'No scores yet!';
             } catch (e) {
-                box.innerHTML = '<div style="color:#ff0055; font-size:0.7rem;">Could not load rankings.</div>';
-                console.error(e);
+                box.innerHTML = '<div style="color:#ff0055; font-size:0.7rem;">Error loading rankings.</div>';
             }
         }
 
@@ -190,7 +227,7 @@
                     score: Math.floor(score),
                     createdAt: serverTimestamp()
                 });
-                document.getElementById('submission-ui').innerHTML = "<div style='color:#0ff; margin-top:10px;'>SCORE SYNCED!</div>";
+                document.getElementById('submission-ui').innerHTML = "<div style='color:#0ff; margin-top:10px;'>RANKING UPDATED!</div>";
                 fetchRankings();
             } catch (e) {
                 alert("Error sending score.");
@@ -240,6 +277,7 @@
                         obstacles.splice(i, 1);
                         score += 1;
                         scoreUI.innerText = Math.floor(score);
+                        updateLiveRank(); // スコア獲得時に順位更新
                     }
                 }
                 draw(px, py);
