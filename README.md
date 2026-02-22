@@ -10,7 +10,6 @@
         #game-container { position: relative; width: 600px; height: 600px; max-width: 95vw; max-height: 85vh; }
         canvas { background: #000; border: 4px solid #333; width: 100%; height: 100%; display: block; }
         
-        /* ゲーム中UI: スコアのみのシンプル構成 */
         #ui { position: absolute; top: 20px; text-align: center; pointer-events: none; width: 100%; z-index: 10; }
         .score-display { font-size: 4.5rem; font-weight: bold; text-shadow: 0 0 20px #ff0055; margin: 0; line-height: 1; }
         .phase-display { font-size: 1.2rem; color: #ff0055; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
@@ -23,7 +22,7 @@
 
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0, 0, 0, 0.9); display: flex; flex-direction: column; 
+            background: rgba(0, 0, 0, 0.92); display: flex; flex-direction: column; 
             align-items: center; justify-content: center; z-index: 2000; text-align: center;
         }
 
@@ -31,53 +30,58 @@
         .title-glow { font-size: 3.5rem; color: #ff0055; text-shadow: 0 0 30px #ff0055; margin: 0; font-weight: 900; letter-spacing: -2px; }
         
         .result-card {
-            background: rgba(20, 20, 20, 0.85);
-            backdrop-filter: blur(15px);
+            background: rgba(15, 15, 15, 0.95);
             border: 2px solid #0ff;
             border-radius: 20px;
-            padding: 25px;
-            width: 90%;
-            max-width: 420px;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.15);
+            padding: 20px;
+            width: 92%;
+            max-width: 440px;
+            height: 85%; /* 高さを固定してリストを際立たせる */
+            display: flex;
+            flex-direction: column;
         }
+
+        /* スライド（スクロール）リストの核 */
+        .ranking-scroll-area { 
+            flex: 1; /* カード内の余白を埋める */
+            background: #000; 
+            border: 1px solid #333;
+            border-radius: 8px; 
+            margin: 10px 0; 
+            overflow-y: scroll; /* 常にスクロール可能に */
+            touch-action: pan-y !important; /* スライド操作を最優先 */
+            -webkit-overflow-scrolling: touch; /* iOSのヌルヌルスクロール */
+        }
+        
+        .ranking-scroll-area::-webkit-scrollbar { width: 8px; }
+        .ranking-scroll-area::-webkit-scrollbar-track { background: #111; }
+        .ranking-scroll-area::-webkit-scrollbar-thumb { background: #0ff; border-radius: 4px; }
+        
+        .rank-list-item { 
+            display: grid;
+            grid-template-columns: 50px 1fr 80px;
+            align-items: center;
+            padding: 12px 10px;
+            border-bottom: 1px solid #222;
+            font-size: 0.9rem;
+        }
+        .rank-list-item:nth-child(even) { background: #050505; }
+        
+        .r-num { color: #555; font-weight: bold; }
+        .r-name { color: #0ff; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .r-score { color: #fff; font-weight: bold; text-align: right; }
 
         .btn {
-            padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border: none; cursor: pointer; 
-            border-radius: 50px; font-family: inherit; transition: 0.3s; margin: 10px 0;
-            text-transform: uppercase; letter-spacing: 2px;
+            padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border: none; cursor: pointer; 
+            border-radius: 50px; font-family: inherit; transition: 0.3s;
+            text-transform: uppercase;
         }
         .btn-start { background: #ff0055; color: #fff; box-shadow: 0 5px 20px rgba(255, 0, 85, 0.4); }
-        .btn-retry { background: #fff; color: #000; width: 100%; }
-        .btn-send { background: #0ff; color: #000; padding: 10px 20px; font-size: 0.9rem; border-radius: 5px; font-weight: bold; }
+        .btn-retry { background: #fff; color: #000; width: 100%; margin-top: 10px; }
+        .btn-send { background: #0ff; color: #000; padding: 10px 15px; font-size: 0.8rem; border-radius: 5px; font-weight: bold; border: none; }
 
-        /* ランキングスライドエリア */
-        .ranking-container { 
-            background: rgba(0,0,0,0.7); 
-            border: 1px solid #333;
-            border-radius: 10px; 
-            margin: 15px 0; 
-            padding: 0; 
-            height: 200px; 
-            overflow-y: auto; 
-            touch-action: pan-y; /* スクロールをスムーズに */
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* スクロールバーのデザイン */
-        .ranking-container::-webkit-scrollbar { width: 4px; }
-        .ranking-container::-webkit-scrollbar-thumb { background: #0ff; border-radius: 10px; }
-        
-        .rank-row { 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 12px 15px; border-bottom: 1px solid #222; font-size: 0.9rem;
-        }
-        .rank-row:last-child { border-bottom: none; }
-        .rank-num { color: #555; width: 35px; text-align: left; font-weight: bold; }
-        .rank-name { color: #0ff; text-align: left; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
-        .rank-score { font-weight: bold; color: #fff; }
-
-        .input-group { display: flex; gap: 8px; margin-top: 10px; }
-        input[type="text"] { background: #111; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 5px; flex: 1; font-family: inherit; }
+        .input-group { display: flex; gap: 5px; margin-bottom: 5px; }
+        input[type="text"] { background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; flex: 1; font-family: inherit; }
     </style>
 </head>
 <body>
@@ -91,32 +95,31 @@
 
         <div id="start-screen" class="overlay">
             <h1 class="title-glow">HEXAGON<br>HELL</h1>
-            <p style="color: #666; margin-top: 10px; letter-spacing: 5px;">- CHAOS EDITION -</p>
             <button class="btn btn-start" id="start-btn" style="margin-top: 50px;">Begin Chaos</button>
         </div>
 
         <div id="pause-screen" class="overlay" style="display:none;">
-            <h2 style="font-size: 3rem; color: #fff; text-shadow: 0 0 20px #fff;">PAUSED</h2>
+            <h2 style="font-size: 3rem;">PAUSED</h2>
             <button class="btn btn-retry" id="resume-btn" style="width: auto;">Resume</button>
         </div>
 
         <div id="result-screen" class="overlay" style="display:none;">
             <div class="result-card">
-                <h2 style="color:#ff0055; margin:0; font-size: 1.3rem; letter-spacing: 2px;">MISSION FAILED</h2>
-                <div style="font-size: 3.5rem; font-weight: bold; margin: 5px 0; color: #fff;" id="final-score">0</div>
+                <h2 style="color:#ff0055; margin:0; font-size: 1.2rem;">GAME OVER</h2>
+                <div style="font-size: 3rem; font-weight: bold; color: #fff;" id="final-score">0</div>
                 
-                <div class="ranking-container" id="rank-list-box">
-                    <div style="padding-top: 80px; color: #444;">Loading Rankings...</div>
+                <div class="ranking-scroll-area" id="rank-list-box">
+                    <div style="padding: 40px; color: #444;">Fetching World Records...</div>
                 </div>
 
                 <div id="submission-ui">
                     <div class="input-group">
-                        <input type="text" id="player-name" placeholder="YOUR NAME" maxlength="10">
+                        <input type="text" id="player-name" placeholder="NAME" maxlength="10">
                         <button class="btn-send" id="submit-btn">SEND</button>
                     </div>
                 </div>
 
-                <button class="btn btn-retry" style="margin-top: 15px;" onclick="location.reload()">RETRY MISSION</button>
+                <button class="btn btn-retry" onclick="location.reload()">RETRY</button>
             </div>
         </div>
 
@@ -174,11 +177,9 @@
             if (gameState === 'PLAYING') rotationDir *= -1;
         });
 
-        // ランキング取得とリスト作成
         async function fetchRankings() {
             const box = document.getElementById('rank-list-box');
             try {
-                // 上位50件まで取得してスライドできるようにする
                 const q = query(collection(db, "world_ranking"), orderBy("score", "desc"), limit(50));
                 const snap = await getDocs(q);
                 let html = '';
@@ -186,25 +187,26 @@
                 snap.forEach(doc => {
                     const d = doc.data();
                     html += `
-                        <div class="rank-row">
-                            <span class="rank-num">#${i}</span>
-                            <span class="rank-name">${d.name || 'Anonymous'}</span>
-                            <span class="rank-score">${Math.floor(d.score)}</span>
+                        <div class="rank-list-item">
+                            <span class="r-num">#${i}</span>
+                            <span class="r-name">${d.name || 'ANON'}</span>
+                            <span class="r-score">${Math.floor(d.score)}</span>
                         </div>`;
                     i++;
                 });
-                box.innerHTML = html || '<div style="padding:20px;">No scores yet!</div>';
+                // 最後にスクロール用の余白を追加
+                html += '<div style="height:20px;"></div>';
+                box.innerHTML = html || '<div style="padding:20px;">NO RECORDS</div>';
             } catch (e) {
-                box.innerHTML = '<div style="padding:20px; color:#ff0055;">Rankings Unavailable</div>';
+                box.innerHTML = '<div style="padding:20px; color:#ff0055;">LOAD ERROR</div>';
             }
         }
 
         document.getElementById('submit-btn').onclick = async () => {
             const nameInput = document.getElementById('player-name');
-            const name = nameInput.value.trim() || "Anonymous";
+            const name = nameInput.value.trim() || "ANON";
             const btn = document.getElementById('submit-btn');
             btn.disabled = true;
-            btn.innerText = "...";
 
             try {
                 await addDoc(collection(db, "world_ranking"), {
@@ -212,12 +214,10 @@
                     score: Math.floor(score),
                     createdAt: serverTimestamp()
                 });
-                document.getElementById('submission-ui').innerHTML = "<div style='color:#0ff; padding:10px; font-weight:bold;'>SYNC COMPLETE</div>";
+                document.getElementById('submission-ui').innerHTML = "<div style='color:#0ff; padding:10px;'>SUBMITTED</div>";
                 fetchRankings();
             } catch (e) {
-                alert("Submission failed.");
                 btn.disabled = false;
-                btn.innerText = "SEND";
             }
         };
 
@@ -272,16 +272,13 @@
         function draw(px, py) {
             ctx.fillStyle = 'rgba(0,0,0,0.25)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
             ctx.strokeStyle = '#333';
             ctx.setLineDash([5, 5]);
             ctx.beginPath(); ctx.arc(centerX, centerY, orbitRadius, 0, Math.PI*2); ctx.stroke();
-
             obstacles.forEach(ob => {
                 ctx.fillStyle = ob.color;
                 ctx.fillRect(ob.x - 12, ob.y - 12, 24, 24);
             });
-
             ctx.fillStyle = "#fff";
             ctx.shadowBlur = 15; ctx.shadowColor = "#fff";
             ctx.beginPath(); ctx.arc(px, py, 12, 0, Math.PI*2); ctx.fill();
