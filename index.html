@@ -37,22 +37,20 @@
             padding: 20px;
             width: 92%;
             max-width: 440px;
-            height: 80vh; /* 画面に収まるよう調整 */
+            height: 80vh;
             display: flex;
             flex-direction: column;
-            touch-action: auto; /* カード内は操作を許可 */
+            touch-action: auto;
         }
-
-        /* スライド（スクロール）リストの修正版 */
         .ranking-scroll-area { 
             flex: 1;
             background: #000; 
             border: 1px solid #333;
             border-radius: 8px; 
             margin: 10px 0; 
-            overflow-y: auto !important; /* スクロールを強制 */
+            overflow-y: auto !important;
             overflow-x: hidden;
-            touch-action: pan-y !important; /* 指での垂直スライドを許可 */
+            touch-action: pan-y !important;
             -webkit-overflow-scrolling: touch;
         }
         
@@ -63,7 +61,7 @@
             display: grid;
             grid-template-columns: 50px 1fr 80px;
             align-items: center;
-            padding: 15px 10px; /* 少し広げてタップしやすく */
+            padding: 15px 10px;
             border-bottom: 1px solid #222;
             font-size: 1rem;
         }
@@ -108,7 +106,7 @@
 
         <div id="result-screen" class="overlay" style="display:none;">
             <div class="result-card">
-                <h2 style="color:#ff0055; margin:0; font-size: 1.2rem;">GAME OVER</h2>
+                <h2 style="color:#ff0055; margin:0; font-size: 1.2rem;">ゲームオーバー</h2>
                 <div style="font-size: 3rem; font-weight: bold; color: #fff;" id="final-score">0</div>
                 
                 <div class="ranking-scroll-area" id="rank-list-box">
@@ -118,11 +116,11 @@
                 <div id="submission-ui">
                     <div class="input-group">
                         <input type="text" id="player-name" placeholder="NAME" maxlength="10">
-                        <button class="btn-send" id="submit-btn">SEND</button>
+                        <button class="btn-send" id="submit-btn">送信</button>
                     </div>
                 </div>
 
-                <button class="btn btn-retry" onclick="location.reload()">RETRY</button>
+                <button class="btn btn-retry" onclick="location.reload()">リトライ</button>
             </div>
         </div>
 
@@ -177,7 +175,6 @@
         };
 
         canvas.addEventListener('pointerdown', (e) => {
-            // オーバーレイが表示されているときは反応させない
             if (gameState === 'PLAYING') rotationDir *= -1;
         });
 
@@ -193,12 +190,12 @@
                     html += `
                         <div class="rank-list-item">
                             <span class="r-num">#${i}</span>
-                            <span class="r-name">${d.name || 'ANON'}</span>
+                            <span class="r-name">${d.name || 'のーねーむ'}</span>
                             <span class="r-score">${Math.floor(d.score)}</span>
                         </div>`;
                     i++;
                 });
-                html += '<div style="height:30px;"></div>'; // 余白
+                html += '<div style="height:30px;"></div>';
                 box.innerHTML = html || '<div style="padding:20px;">NO RECORDS</div>';
             } catch (e) {
                 box.innerHTML = '<div style="padding:20px; color:#ff0055;">LOAD ERROR</div>';
